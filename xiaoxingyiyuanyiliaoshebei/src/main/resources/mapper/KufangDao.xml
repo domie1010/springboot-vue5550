@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.KufangDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.kufang_uuid_number as kufangUuidNumber
+        ,a.kufang_name as kufangName
+        ,a.kufang_types as kufangTypes
+        ,a.kufang_address as kufangAddress
+        ,a.kufang_content as kufangContent
+        ,a.kufang_delete as kufangDelete
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.KufangView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM kufang  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.kufangUuidNumber != '' and params.kufangUuidNumber != null and params.kufangUuidNumber != 'null' ">
+                and a.kufang_uuid_number like CONCAT('%',#{params.kufangUuidNumber},'%')
+            </if>
+            <if test=" params.kufangName != '' and params.kufangName != null and params.kufangName != 'null' ">
+                and a.kufang_name like CONCAT('%',#{params.kufangName},'%')
+            </if>
+            <if test="params.kufangTypes != null and params.kufangTypes != ''">
+                and a.kufang_types = #{params.kufangTypes}
+            </if>
+            <if test=" params.kufangAddress != '' and params.kufangAddress != null and params.kufangAddress != 'null' ">
+                and a.kufang_address like CONCAT('%',#{params.kufangAddress},'%')
+            </if>
+            <if test=" params.kufangContent != '' and params.kufangContent != null and params.kufangContent != 'null' ">
+                and a.kufang_content like CONCAT('%',#{params.kufangContent},'%')
+            </if>
+            <if test="params.kufangDeleteStart != null and params.kufangDeleteStart != ''">
+                <![CDATA[  and a.kufang_delete >= #{params.kufangDeleteStart}   ]]>
+            </if>
+            <if test="params.kufangDeleteEnd != null and params.kufangDeleteEnd != ''">
+                <![CDATA[  and a.kufang_delete <= #{params.kufangDeleteEnd}   ]]>
+            </if>
+             <if test="params.kufangDelete != null and params.kufangDelete != ''">
+                and a.kufang_delete = #{params.kufangDelete}
+             </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
